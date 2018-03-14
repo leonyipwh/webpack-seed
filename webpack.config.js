@@ -5,6 +5,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin'); // Require  html-webpa
 const ExtractTextPlugin = require('extract-text-webpack-plugin'); // Require  html-webpack-plugin plugin
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+const Jarvis = require("webpack-jarvis");
 
 const ENV = process.env.APP_ENV;
 const isDev = ENV === 'dev';
@@ -22,7 +23,7 @@ function setDevTool() {  // function to set dev-tool depending on environment
 }
 
 const config = {
-  entry: __dirname + "/src/app/index.js", // webpack entry point. Module to start building dependency graph
+  entry: __dirname + "/src/js/index.js", // webpack entry point. Module to start building dependency graph
   output: {
     path: __dirname + '/dist', // Folder to store generated bundle
     filename: 'bundle.js',  // Name of generated bundle after build
@@ -61,7 +62,7 @@ const config = {
   },
   plugins: [  // Array of plugins to apply to build chunk
     new HtmlWebpackPlugin({
-        template: __dirname + "/src/public/index.html",
+        template: __dirname + "/src/index.html",
         inject: 'body'
     }),
     new ExtractTextPlugin("styles.css"),
@@ -70,9 +71,12 @@ const config = {
       APP_ENV: JSON.stringify(process.env.APP_ENV)
     }),
     new UglifyJSPlugin(),
+    new Jarvis({
+      port: 1337 // optional: set a port
+    }),
   ],
   devServer: {  // configuration for webpack-dev-server
-      contentBase: './src/public',  //source of static assets
+      contentBase: './src',  //source of static assets
       port: 7700, // port to run dev-server
   },
   devtool: setDevTool(),  //Set the devtool
@@ -85,7 +89,7 @@ if(isProd) {  // plugins to use in a production environment
   config.plugins.push(
       new UglifyJSPlugin(),  // minify the chunk
       new CopyWebpackPlugin([{  // copy assets to public folder
-        from: __dirname + '/src/public'
+        from: __dirname + '/public'
       }])
   );
 };
